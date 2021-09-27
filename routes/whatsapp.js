@@ -1,14 +1,29 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
 const { default: Axios } = require("axios");
 const { waEndpoint, waInstance, waToken } = require("../common/keys");
 
 /* Get Qr code*/
-router.get("/qr_code", async (req, res, next) => {
+router.get("/status", async (req, res, next) => {
   try {
     const { data, status, statusText } = await Axios.get(
-      `${waEndpoint}/${waInstance}/qr_code?token=${waToken}`
+      `${waEndpoint}/${waInstance}/status?token=${waToken}`
     );
+    if(data.accountStatus && data.accountStatus === "authenticated"){
+      data.isAuthenticated = true
+    
+
+    const uData = await Axios.get(
+      `${waEndpoint}/${waInstance}/me?token=${waToken}`
+    );
+    if(uData.data && uData.data.id){
+      data.userData = uData.data
+    }
+  }else{
+    data.isAuthenticated = false
+    
+  }
+
     res.send(data);
   } catch (error) {
     console.log(error);
@@ -17,17 +32,17 @@ router.get("/qr_code", async (req, res, next) => {
 });
 
 //Get status
-router.get("/status", async (req, res, next) => {
-  try {
-    const { data, status, statusText } = await Axios.get(
-      `${waEndpoint}/${waInstance}/status?token=${waToken}`
-    );
-    res.send(data);
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-});
+// router.get("/status", async (req, res, next) => {
+//   try {
+//     const { data, status, statusText } = await Axios.get(
+//       `${waEndpoint}/${waInstance}/status?token=${waToken}`
+//     );
+//     res.send(data);
+//   } catch (error) {
+//     console.log(error);
+//     throw error;
+//   }
+// });
 
 //Get User datails
 router.get("/me", async (req, res, next) => {
@@ -45,26 +60,15 @@ router.get("/me", async (req, res, next) => {
 //Send message
 router.post("/sendMessage", async(req, res, next) => {
   try {
-    const numbersArr = [
-      {
-        phone: "+971522123192",
-        name: "mahin anas",
-      },
-      {
-        phone: "+919995777877",
-        name: "anas",
-      },
-      {
-        phone: "919995444744",
-        name: "mahin anas",
-      },
-    ];
+    const params = req.body
+    const numbersArr = params.mobileNo.includes(",") ?  params.mobileNo.split(",") : [params]
+    
     console.log("==========Start=============");
-    for(let i = 0; i < numbersArr.length; i++){
+    for(let i =   0; i < numbersArr.length; i++){
       let v = numbersArr[i]
       let content = {
-        body: "Hii there 3",
-        phone: v.phone.replace("+", ""),
+        body: params.message,
+        phone: v.replace("+", ""),
       };
       const { data, status, statusText } = await Axios.post(
         `${waEndpoint}/${waInstance}/sendMessage?token=${waToken}`,
@@ -75,7 +79,7 @@ router.post("/sendMessage", async(req, res, next) => {
         let contentAttachments = {
           body: "https://exiniti.com/images/logo.png",
           filename: "logo.png",
-          phone: v.phone.replace("+", ""),
+          phone: v.replace("+", ""),
         };
         const resAttachemnt = await Axios.post(
           `${waEndpoint}/${waInstance}/sendFile?token=${waToken}`,

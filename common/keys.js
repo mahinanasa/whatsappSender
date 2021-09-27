@@ -1,12 +1,13 @@
 let fileName = '.env'
 require('dotenv').config()
 const envVars = process.env
+//anunanas@yopmail.com
 
 const config = {
     env : envVars.NODE_ENV,
     waEndpoint : 'https://api.chat-api.com',
-    waInstance :  'instance337254',
-    waToken: "s5dwzswuro2c0ue9"
+    waInstance :  'instance341288',
+    waToken: "dedjf1jtzdpgccl8"
    
 }
 
