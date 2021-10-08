@@ -6,8 +6,8 @@ const envVars = process.env
 const config = {
     env : envVars.NODE_ENV,
     waEndpoint : 'https://api.chat-api.com',
-    waInstance :  'instance344396',
-    waToken: "pujyumtstls245pv"
+    waInstance :  'instance347570',
+    waToken: "0dqncw3ob7lsaz21"
    
 }
 
