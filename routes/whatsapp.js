@@ -68,7 +68,7 @@ router.post("/sendMessage", async(req, res, next) => {
       let v = numbersArr[i]
       let content = {
         body: params.message,
-        phone: v.replace("+", ""),
+        phone: v.mobileNo.replace("+", ""),
       };
       const { data, status, statusText } = await Axios.post(
         `${waEndpoint}/${waInstance}/sendMessage?token=${waToken}`,
