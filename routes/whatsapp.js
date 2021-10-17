@@ -62,7 +62,7 @@ router.post("/sendMessage", async(req, res, next) => {
   try {
     const params = req.body
     const numbersArr = params.mobileNo.includes(",") ?  params.mobileNo.split(",") : [params]
-    
+    let returnData;
     console.log("==========Start=============");
     for(let i =   0; i < numbersArr.length; i++){
       let v = numbersArr[i]
@@ -74,22 +74,24 @@ router.post("/sendMessage", async(req, res, next) => {
         `${waEndpoint}/${waInstance}/sendMessage?token=${waToken}`,
         content
       )
+      returnData = data
         console.log("-----------data--------",data)
-      if (false && status === 200 && statusText.toLowerCase() === "ok") {
+      if (params.selectedFiles && params.selectedFiles.length > 0 && data.sent && status === 200 && statusText.toLowerCase() === "ok") {
+        for(let u = 0; u < params.selectedFiles.length; u++){            
         let contentAttachments = {
-          body: "https://exiniti.com/images/logo.png",
-          filename: "logo.png",
-          phone: v.replace("+", ""),
+          body: params.selectedFiles[u].dataUrl,
+          filename: params.selectedFiles[u].fileName,
+          phone: params.mobileNo.includes(",") ?  v.replace("+", "") : v.mobileNo.replace("+", ""),
         };
         const resAttachemnt = await Axios.post(
           `${waEndpoint}/${waInstance}/sendFile?token=${waToken}`,
           contentAttachments
         );
       }
-      console.log(i);
+      }
     }
     console.log("==============End============");
-    res.json({ test: waEndpoint });
+    res.json(returnData) 
   } catch (error) {
     console.log(error);
     throw error;
